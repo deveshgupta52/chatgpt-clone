@@ -1,0 +1,13 @@
+@import "tailwindcss";
+@import "../features/Chat/styles/obsidian-chat.css";
+
+/* Base Tailwind Styles */
+@layer base {
+  html {
+    @apply bg-black;
+  }
+  
+  body {
+    @apply bg-black;
+  }
+}

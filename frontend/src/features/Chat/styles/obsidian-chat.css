@@ -1,0 +1,269 @@
+/* Obsidian Chat UI - Custom Styles */
+
+.material-symbols-outlined {
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+  display: inline-block;
+  line-height: 1;
+  text-transform: none;
+  letter-spacing: normal;
+  word-wrap: normal;
+  white-space: nowrap;
+  direction: ltr;
+}
+
+/* Dotted Background Pattern */
+body {
+  background-color: #000000;
+  color: #E2E2E2;
+  background-image: 
+    radial-gradient(circle, rgba(221, 183, 255, 0.05) 1px, transparent 1px),
+    radial-gradient(circle, rgba(0, 229, 255, 0.03) 1px, transparent 1px);
+  background-size: 50px 50px, 80px 80px;
+  background-position: 0 0, 25px 25px;
+  background-attachment: fixed;
+  scrollbar-width: thin;
+  scrollbar-color: #1a1a1a transparent;
+}
+
+/* Scrollbar for body in Webkit browsers */
+body::-webkit-scrollbar {
+  width: 4px;
+}
+
+body::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+body::-webkit-scrollbar-thumb {
+  background: #1a1a1a;
+  border-radius: 2px;
+}
+
+body::-webkit-scrollbar-thumb:hover {
+  background: #2a2a2a;
+}
+
+html {
+  background-color: #000000;
+  background-image: 
+    radial-gradient(circle, rgba(221, 183, 255, 0.05) 1px, transparent 1px),
+    radial-gradient(circle, rgba(0, 229, 255, 0.03) 1px, transparent 1px);
+  background-size: 50px 50px, 80px 80px;
+  background-position: 0 0, 25px 25px;
+  background-attachment: fixed;
+  scrollbar-width: thin;
+  scrollbar-color: #1a1a1a transparent;
+}
+
+/* Scrollbar for html in Webkit browsers */
+html::-webkit-scrollbar {
+  width: 4px;
+}
+
+html::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+html::-webkit-scrollbar-thumb {
+  background: #1a1a1a;
+  border-radius: 2px;
+}
+
+html::-webkit-scrollbar-thumb:hover {
+  background: #2a2a2a;
+}
+
+.glass-effect {
+  backdrop-filter: blur(40px);
+}
+
+/* Chat Container - Smooth Scrolling with Premium Scrollbar */
+.chat-container {
+  scroll-behavior: smooth;
+  scrollbar-width: thin;
+  scrollbar-color: #1a1a1a transparent;
+}
+
+/* Webkit Browsers (Chrome, Safari, Edge) - Thin, minimal scrollbar */
+.chat-container::-webkit-scrollbar {
+  width: 4px;
+}
+
+.chat-container::-webkit-scrollbar-track {
+  background: transparent;
+  margin-right: 1px;
+}
+
+.chat-container::-webkit-scrollbar-thumb {
+  background: #1a1a1a;
+  border-radius: 2px;
+  transition: background 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.chat-container::-webkit-scrollbar-thumb:hover {
+  background: #2a2a2a;
+}
+
+/* Floating Input - Base Styles */
+.floating-input-container {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 40;
+  backdrop-filter: blur(10px);
+  background: linear-gradient(to top, rgba(10, 10, 10, 0.95), rgba(10, 10, 10, 0.7) 50%, transparent);
+  padding: 1.5rem 1rem 1rem 1rem;
+}
+
+.floating-input-box {
+  position: relative;
+  border-radius: 9999px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden;
+}
+
+.floating-input-box.focused {
+  transform: translateY(-4px);
+  box-shadow: 0 0 32px rgba(221, 183, 255, 0.2), inset 0 0 20px rgba(221, 183, 255, 0.05);
+}
+
+.floating-input-box:hover:not(.focused) {
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+}
+
+/* Smooth transitions for shadows and borders */
+@supports (backdrop-filter: blur(1px)) {
+  .floating-input-box {
+    background: rgba(19, 19, 21, 0.92);
+    backdrop-filter: blur(14px);
+  }
+}
+
+/* Layout fix - ensure main content area has proper overflow */
+main {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: linear-gradient(135deg, rgba(0, 0, 0, 0.8) 0%, rgba(10, 10, 10, 0.5) 100%);
+}
+
+main > div:first-child {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-right: 0.5px;
+}
+
+main > div:last-child {
+  flex-shrink: 0;
+}
+
+/* Enhanced message styling for premium look */
+.message-bubble {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.message-bubble:hover {
+  transform: translateY(-1px);
+}
+
+.neon-glow-purple {
+  box-shadow: 0 0 15px rgba(221, 183, 255, 0.15);
+}
+
+.neon-glow-cyan {
+  box-shadow: 0 0 15px rgba(0, 229, 255, 0.15);
+}
+
+/* Textarea Styling */
+textarea {
+  overflow: hidden;
+  font-family: inherit;
+  letter-spacing: -0.3px;
+}
+
+.input-textarea::placeholder {
+  color: rgba(255, 255, 255, 0.35);
+  font-weight: 400;
+  letter-spacing: -0.2px;
+}
+
+.input-textarea:focus::placeholder {
+  color: rgba(255, 255, 255, 0.25);
+}
+
+/* Remove default focus ring, we use border instead */
+.input-textarea:focus {
+  outline: none;
+  box-shadow: none;
+}
+
+/* Smooth caret color */
+.input-textarea {
+  caret-color: #DDB7FF;
+  line-height: 1.4;
+  font-size: 14px;
+}
+
+.input-textarea::selection {
+  background-color: rgba(221, 183, 255, 0.2);
+  color: inherit;
+}
+
+/* Mobile Optimization */
+@media (max-width: 768px) {
+  .floating-input-container {
+    padding: 0.75rem;
+  }
+
+  .chat-container {
+    padding-bottom: 8rem;
+  }
+}
+
+/* Accessibility - Focus Visible */
+button:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid #DDB7FF;
+  outline-offset: 2px;
+}
+
+/* Animation for message appearance */
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.message-enter {
+  animation: slideUp 0.3s ease-out;
+}
+
+/* Skeleton Loading */
+.skeleton {
+  background: linear-gradient(90deg, #1A1A1A 0%, #2A2A2A 50%, #1A1A1A 100%);
+  background-size: 200% 100%;
+  animation: loading 2s infinite;
+}
+
+@keyframes loading {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+.message-bubble {
+  background: #0E0E0E;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), 0 0 20px rgba(221, 183, 255, 0.03);
+}
+

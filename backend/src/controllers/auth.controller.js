@@ -47,7 +47,7 @@ export const registerController = async (req, res) => {
                 to: email,
                 subject: "Verify Your Email - Perplexity",
                 html: htmlContent,
-                text: `Please verify your email at: http://localhost:3000/api/auth/verify-email?verifytoken=${verifyEmailToken}`
+                text: `Please verify your email at: ${process.env.BACKEND_URL || 'http://localhost:3000'}/api/auth/verify-email?verifytoken=${verifyEmailToken}`
             })
 
             return res.status(200).json({
@@ -87,8 +87,7 @@ export const registerController = async (req, res) => {
         to: email,
         subject: "Welcome to Perplexity - Verify Your Email",
         html: htmlContent,
-        text: `Welcome ${username}! Please verify your email at: http://localhost:3000/api/auth/verify-email?verify
-        token=${verifyEmailToken}`
+        text: `Welcome ${username}! Please verify your email at: ${process.env.BACKEND_URL || 'http://localhost:3000'}/api/auth/verify-email?verifytoken=${verifyEmailToken}`
     })
 
     res.status(201).json({
@@ -144,7 +143,8 @@ const token = jwt.sign({
 
 res.cookie("token", token, {
     httpOnly: true,
-    secure: false // true in production
+    secure: process.env.NODE_ENV === "production", // true in production
+    maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
 })
 
  return res.redirect("http://localhost:5173/login")
@@ -203,7 +203,11 @@ export const loginController = async (req, res) => {
             username: user.username
         }, process.env.JWT_SECRET || "your_secret_key", {expiresIn: '7d'})
 
-        res.cookie("token", token)
+        res.cookie("token", token, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production", // true in production
+            maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
+        })
 
         res.status(200).json({
             message: "Login Successful",
@@ -306,7 +310,7 @@ export const resendVerifyEmailController = async (req, res) => {
             to: email,
             subject: "Verify Your Email - Perplexity",
             html: htmlContent,
-            text: `Please verify your email at: http://localhost:3000/api/auth/verify-email?verifytoken=${verifyEmailToken}`
+            text: `Please verify your email at: ${process.env.BACKEND_URL || 'http://localhost:3000'}/api/auth/verify-email?verifytoken=${verifyEmailToken}`
         })
 
         res.status(200).json({

@@ -54,7 +54,7 @@ async function handleSubmit(e){
             </div>
           </div>
           <h1 className="text-3xl font-bold text-secondary mb-2 font-manrope tracking-tight">Create Account</h1>
-          <p className="text-on-surface/60 text-sm">Join Luminous AI today</p>
+          <p className="text-on-surface/60 text-sm">Join ChatGpt today</p>
         </div>
 
         {/* Form Card */}
@@ -186,9 +186,7 @@ async function handleSubmit(e){
         </div>
 
         {/* Footer Text */}
-        <p className="text-center text-on-surface/40 text-xs mt-8 uppercase tracking-widest font-medium">
-          Obsidian AI v2.4 • Secure Registration
-        </p>
+       
       </div>
 
       {/* Email Verification Modal */}

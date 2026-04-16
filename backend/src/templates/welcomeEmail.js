@@ -202,13 +202,13 @@ export const welcomeEmailTemplate = (username, verifyEmailToken) => {
                         Click the button below to verify your email address and activate your account:
                     </p>
                     
-                    <a href="http://localhost:3000/api/auth/verify-email?verifytoken=${verifyEmailToken}" class="verify-button">
+                    <a href="${process.env.BACKEND_URL || 'http://localhost:3000'}/api/auth/verify-email?verifytoken=${verifyEmailToken}" class="verify-button">
                         ✓ Verify Email Address
                     </a>
                     
                     <div class="verification-link">
                         <strong>Or copy this link:</strong><br>
-                        http://localhost:3000/api/auth/verify-email?verifytoken=${verifyEmailToken}
+                        ${process.env.BACKEND_URL || 'http://localhost:3000'}/api/auth/verify-email?verifytoken=${verifyEmailToken}
                     </div>
                 </div>
                 

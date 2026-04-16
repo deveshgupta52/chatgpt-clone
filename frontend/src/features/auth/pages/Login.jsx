@@ -37,7 +37,7 @@ const Login = () => {
             </div>
           </div>
           <h1 className="text-3xl font-bold text-primary mb-2 font-manrope tracking-tight">Welcome Back</h1>
-          <p className="text-on-surface/60 text-sm">Sign in to access Luminous AI</p>
+          <p className="text-on-surface/60 text-sm">Sign in to access ChatGpt</p>
         </div>
 
         {/* Form Card */}
@@ -115,7 +115,7 @@ const Login = () => {
               <span className="relative text-black font-bold flex items-center justify-center gap-2">
                 {loading ? (
                   <>
-                    <span className="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+                    <span className="inline-block w-4 h-4 border-2 border-white text-black border-t-transparent rounded-full animate-spin"></span>
                     Signing in...
                   </>
                 ) : 'Sign In'}
@@ -154,9 +154,7 @@ const Login = () => {
         </div>
 
         {/* Footer Text */}
-        <p className="text-center text-on-surface/40 text-xs mt-8 uppercase tracking-widest font-medium">
-          Obsidian AI v2.4 • Secure Login
-        </p>
+       
       </div>
     </div>
   )

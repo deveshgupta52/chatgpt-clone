@@ -3,10 +3,15 @@ dotenv.config()
 
 import app from "./src/app.js"
 import connectDB from "./src/config/database.js"
+import { createServer } from "http";
+import { initSocket } from "./src/sockets/server.socket.js";
 
+const httpServer=createServer(app)
+initSocket(httpServer)
 
 connectDB()
 
-app.listen(3000,()=>{
-    console.log(`server is listening on port 3000`)
+const PORT = process.env.PORT || 3000;
+httpServer.listen(PORT,()=>{
+    console.log(`server is listening on port ${PORT}`)
 })

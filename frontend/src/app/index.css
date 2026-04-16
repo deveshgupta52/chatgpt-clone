@@ -1,13 +1,32 @@
 @import "tailwindcss";
-@import "../features/Chat/styles/obsidian-chat.css";
 
-/* Base Tailwind Styles */
-@layer base {
-  html {
-    @apply bg-black;
-  }
-  
-  body {
-    @apply bg-black;
-  }
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
 }
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #000000;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #1a1a1a;
+}
+
+/* Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #444444 transparent;
+
+}
+
+body{
+  color: white;
+}
+

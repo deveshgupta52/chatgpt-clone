@@ -29,3 +29,8 @@ import axios from "axios"
     const response=await api.post('/auth/resend-verify-email',{email})
     return response.data
  }
+
+ export async function logout(){
+    const response=await api.post('/auth/logout')
+    return response.data
+ }

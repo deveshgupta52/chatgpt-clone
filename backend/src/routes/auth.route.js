@@ -1,5 +1,5 @@
 import express from "express"
-import { loginController, registerController, verifyEmailController, getMeController, resendVerifyEmailController, googleCallback } from "../controllers/auth.controller.js"
+import { loginController, registerController, verifyEmailController, getMeController, resendVerifyEmailController, googleCallback, logoutController } from "../controllers/auth.controller.js"
 import { registerValidator, loginValidator } from "../validators/auth.validator.js"
 import { authUser } from "../middlewares/auth.middleware.js"
 import passport from "passport"
@@ -22,5 +22,7 @@ authRouter.get('/google/callback',
   passport.authenticate('google', { failureRedirect: '/login', session: false }),
   googleCallback
 );
+
+authRouter.post("/logout", logoutController)
 
 export default authRouter

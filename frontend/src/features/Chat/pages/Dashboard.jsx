@@ -1,7 +1,8 @@
 import React, { useEffect, useState, useRef } from 'react'
 import { useChat } from '../hooks/useChat'
-import { Plus, ArrowUp, History, MessageSquare, MoreHorizontal, Menu, X, MoreVertical, Trash2 } from 'lucide-react'
+import { Plus, ArrowUp, History, MessageSquare, MoreHorizontal, Menu, X, MoreVertical, Trash2, LogOut } from 'lucide-react'
 import { useSelector, useDispatch } from 'react-redux'
+import { useAuth } from '../../Auth/hooks/useAuth'
 import MessageItem from '../components/MessageItem'
 import NewChat from '../components/NewChat'
 import ChatInput from '../components/ChatInput'
@@ -27,7 +28,9 @@ const Dashboard = () => {
 
     
     const {initializeSocketConnection, handleGetChats, handleGetMessages, handleSendMessage, handleDeleteChat} = useChat()
+    const {handleLogout} = useAuth()
     const {chats, currentMessages, currentChatId} = useSelector((state) => state.chat)
+    const {user} = useSelector((state) => state.auth)
 
     useEffect(() => {
         scrollToBottom()
@@ -161,6 +164,34 @@ const Dashboard = () => {
                 ))}
              </div>
            )}
+
+           {/* User Profile & Logout Section */}
+           <div className="mt-auto pt-4 border-t border-white/5">
+                <div className="flex items-center justify-between gap-3 px-2 py-3 rounded-xl bg-white/5 backdrop-blur-sm border border-white/5 shadow-inner group/user">
+                    <div className="flex items-center gap-2.5 min-w-0">
+                        <div className="w-10 h-10 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center shrink-0">
+                            <span className="text-primary text-xs font-bold uppercase leading-none">
+                                {user?.username?.charAt(0) || 'U'}
+                            </span>
+                        </div>
+                        <div className="flex flex-col min-w-0">
+                            <span className="text-[13px] font-semibold text-neutral-100 truncate leading-tight">
+                                {user?.username || 'User'}
+                            </span>
+                            <span className="text-[11px] text-neutral-500 truncate leading-tight">
+                                {user?.email || 'user@example.com'}
+                            </span>
+                        </div>
+                    </div>
+                    <button 
+                        onClick={handleLogout}
+                        className="p-2 text-neutral-500 hover:text-red-400 hover:bg-red-400/10 rounded-lg transition-all active:scale-90"
+                        title="Logout"
+                    >
+                        <LogOut className="w-4 h-4" />
+                    </button>
+                </div>
+            </div>
       </div>
 
       {/* Main Content Area */}

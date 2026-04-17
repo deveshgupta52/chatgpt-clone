@@ -379,3 +379,25 @@ export const googleCallback = async (req, res) => {
         res.redirect(`${frontendUrl}/login?error=google_auth_failed`);
     }
 }
+
+export const logoutController = async (req, res) => {
+    try {
+        res.cookie("token", "", {
+            httpOnly: true,
+            expires: new Date(0),
+            secure: process.env.NODE_ENV === "production",
+            sameSite: process.env.NODE_ENV === "production" ? 'none' : 'lax'
+        });
+
+        res.status(200).json({
+            message: "Logout successful",
+            success: true
+        });
+    } catch (error) {
+        res.status(500).json({
+            message: "Logout failed",
+            success: false,
+            error: error.message
+        });
+    }
+}

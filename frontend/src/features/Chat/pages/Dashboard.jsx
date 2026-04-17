@@ -1,11 +1,12 @@
 import React, { useEffect, useState, useRef } from 'react'
 import { useChat } from '../hooks/useChat'
-import { Plus, ArrowUp, History, MessageSquare, MoreHorizontal, Menu, X} from 'lucide-react'
+import { Plus, ArrowUp, History, MessageSquare, MoreHorizontal, Menu, X, MoreVertical, Trash2 } from 'lucide-react'
 import { useSelector, useDispatch } from 'react-redux'
 import MessageItem from '../components/MessageItem'
 import NewChat from '../components/NewChat'
 import ChatInput from '../components/ChatInput'
 import { setCurrentChatId, setCurrentMessages } from '../chat.slice'
+import DeleteModal from '../components/DeleteModal'
 
 
 const Dashboard = () => {
@@ -14,6 +15,9 @@ const Dashboard = () => {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false)
     const [selectedModel, setSelectedModel] = useState("mistral")
     const [isModelDropdownOpen, setIsModelDropdownOpen] = useState(false)
+    const [activeMenuId, setActiveMenuId] = useState(null)
+    const [isHeaderMenuOpen, setIsHeaderMenuOpen] = useState(false)
+    const [deleteModalConfig, setDeleteModalConfig] = useState({ isOpen: false, chatId: null, chatTitle: '' })
     const dispatch = useDispatch()
     const messagesEndRef = useRef(null)
 
@@ -22,7 +26,7 @@ const Dashboard = () => {
     }
 
     
-    const {initializeSocketConnection, handleGetChats, handleGetMessages, handleSendMessage} = useChat()
+    const {initializeSocketConnection, handleGetChats, handleGetMessages, handleSendMessage, handleDeleteChat} = useChat()
     const {chats, currentMessages, currentChatId} = useSelector((state) => state.chat)
 
     useEffect(() => {
@@ -47,6 +51,13 @@ const Dashboard = () => {
         handleGetMessages(chatId)
         if(window.innerWidth < 768) setIsSidebarOpen(false)
     }
+
+    const confirmDelete = () => {
+        if (deleteModalConfig.chatId) {
+            handleDeleteChat(deleteModalConfig.chatId);
+            setDeleteModalConfig({ ...deleteModalConfig, isOpen: false });
+        }
+    };
   return (
     <main className='flex h-screen bg-neutral-900 overflow-hidden relative'>
       {/* Mobile Backdrop */}
@@ -103,9 +114,49 @@ const Dashboard = () => {
            {isRecentOpen && (
              <div className='flex flex-col gap-1 mt-2 overflow-y-auto max-h-[60vh] custom-scrollbar'>
                 {chats?.chats?.map((chat) => (
-                    <div onClick={()=>GetMessages(chat._id)} key={chat._id} className='flex items-center gap-2 p-2 rounded-lg hover:bg-neutral-800 cursor-pointer transition-colors'>
-                        <MessageSquare className='text-neutral-400 w-4 h-4' />
-                        <span className='text-sm text-neutral-300 truncate'>{chat.title?.replace(/^["']+|["']+$/g, '')}</span>
+                    <div 
+                        key={chat._id} 
+                        className='group relative flex items-center gap-2 p-2 rounded-lg hover:bg-neutral-800 cursor-pointer transition-colors'
+                    >
+                        <div className='flex items-center gap-2 flex-1 min-w-0' onClick={()=>GetMessages(chat._id)}>
+                            <MessageSquare className='text-neutral-400 w-4 h-4 shrink-0' />
+                            <span className='text-sm text-neutral-300 truncate'>{chat.title?.replace(/^["']+|["']+$/g, '')}</span>
+                        </div>
+                        
+                        <div className='relative'>
+                            <button 
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    setActiveMenuId(activeMenuId === chat._id ? null : chat._id);
+                                }}
+                                className={`p-1 rounded-md hover:bg-neutral-700 transition-opacity ${activeMenuId === chat._id ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}
+                            >
+                                <MoreVertical className='w-4 h-4 text-neutral-400' />
+                            </button>
+                            
+                            {activeMenuId === chat._id && (
+                                <>
+                                    <div className='fixed inset-0 z-40' onClick={(e) => { e.stopPropagation(); setActiveMenuId(null); }} />
+                                    <div className='absolute right-0 mt-1 w-32 bg-neutral-900 border border-neutral-800 rounded-lg shadow-2xl overflow-hidden z-50 ring-1 ring-white/10'>
+                                        <button 
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                setDeleteModalConfig({
+                                                    isOpen: true,
+                                                    chatId: chat._id,
+                                                    chatTitle: chat.title?.replace(/^["']+|["']+$/g, '') || 'this chat'
+                                                });
+                                                setActiveMenuId(null);
+                                            }}
+                                            className='flex items-center gap-2 w-full text-left px-3 py-2.5 text-xs font-medium text-red-400 hover:bg-red-500/10 hover:text-red-300 transition-all'
+                                        >
+                                            <Trash2 className='w-3.5 h-3.5' />
+                                            Delete Chat
+                                        </button>
+                                    </div>
+                                </>
+                            )}
+                        </div>
                     </div>
                 ))}
              </div>
@@ -166,9 +217,36 @@ const Dashboard = () => {
                     )}
                 </div>
                 
-                <button className='text-neutral-400 hover:text-white transition-colors p-2 hover:bg-neutral-800 rounded-lg focus:outline-none'>
-                    <MoreHorizontal className='w-6 h-6' />
-                </button>
+                 <div className='relative'>
+                    <button 
+                        onClick={() => setIsHeaderMenuOpen(!isHeaderMenuOpen)}
+                        className='text-neutral-400 hover:text-white transition-colors p-2 hover:bg-neutral-800 rounded-lg focus:outline-none'
+                    >
+                        <MoreHorizontal className='w-6 h-6' />
+                    </button>
+                    
+                    {isHeaderMenuOpen && currentChatId && (
+                        <>
+                            <div className='fixed inset-0 z-40' onClick={() => setIsHeaderMenuOpen(false)} />
+                            <div className='absolute right-0 mt-2 w-48 bg-neutral-900 border border-neutral-800 rounded-xl shadow-2xl overflow-hidden z-50 animate-in fade-in zoom-in duration-200'>
+                                <button 
+                                    onClick={() => {
+                                        setDeleteModalConfig({
+                                            isOpen: true,
+                                            chatId: currentChatId,
+                                            chatTitle: chats?.chats?.find(c => c._id === currentChatId)?.title?.replace(/^["']+|["']+$/g, '') || 'this chat'
+                                        });
+                                        setIsHeaderMenuOpen(false);
+                                    }}
+                                    className='flex items-center gap-3 w-full text-left px-4 py-3 text-sm font-medium text-red-400 hover:bg-red-500/10 hover:text-red-300 transition-all'
+                                >
+                                    <Trash2 className='w-4 h-4' />
+                                    Delete Chat
+                                </button>
+                            </div>
+                        </>
+                    )}
+                 </div>
             </div>
           </div>
           
@@ -194,6 +272,13 @@ const Dashboard = () => {
               </div>
             </div>
           )}
+          
+          <DeleteModal 
+            isOpen={deleteModalConfig.isOpen}
+            onClose={() => setDeleteModalConfig({ ...deleteModalConfig, isOpen: false })}
+            onConfirm={confirmDelete}
+            chatTitle={deleteModalConfig.chatTitle}
+          />
       </div>
     </main>
   )

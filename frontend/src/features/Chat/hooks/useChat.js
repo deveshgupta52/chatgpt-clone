@@ -6,7 +6,7 @@ import { setChats, setCurrentChatId, setLoading, setCurrentMessages, setError } 
 export const useChat=()=>{
 
 const dispatch=useDispatch()
-const { currentMessages } = useSelector(state => state.chat);
+const { currentMessages, currentChatId } = useSelector(state => state.chat);
 
 const handleGetChats=async()=>{
     try {
@@ -64,8 +64,16 @@ const handleGetMessages=async(chatId)=>{
 const handleDeleteChat=async(chatId)=>{
     try {
         dispatch(setLoading(true))
-        const response=await deleteChat(chatId)
-        dispatch(setChats(response))
+        await deleteChat(chatId)
+        // Re-fetch chats to update sidebar
+        await handleGetChats()
+        
+        // If the deleted chat was the current one, reset state
+        if (chatId === currentChatId) {
+            dispatch(setCurrentChatId(null))
+            dispatch(setCurrentMessages({ messages: [] }))
+            await handleGetChats()
+        }
     } catch (error) {
         dispatch(setError(error.message))
     }finally{

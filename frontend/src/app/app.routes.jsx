@@ -1,10 +1,10 @@
 import { createBrowserRouter } from "react-router";
-import Login from "../features/auth/pages/Login";
-import Register from "../features/auth/pages/Register"
+import Login from "../features/auth/pages/Login.jsx";
+import Register from "../features/auth/pages/Register.jsx"
 
-import Protected from "../features/auth/components/Protected";
-import EmailVerificationModal from "../features/auth/components/EmailVerificationModal";
-import Dashboard from "../features/Chat/pages/Dashboard";
+import Protected from "../features/auth/components/Protected.jsx";
+import EmailVerificationModal from "../features/auth/components/EmailVerificationModal.jsx";
+import Dashboard from "../features/Chat/pages/Dashboard.jsx";
 
 export const router=createBrowserRouter([
     {

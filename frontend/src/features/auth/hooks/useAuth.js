@@ -1,6 +1,6 @@
 import { useDispatch } from "react-redux";
-import { setUser,setLoading,setError,logout as logoutAction } from "../auth.slice";
-import {register,login,getMe,logout as logoutApi} from '../services/auth.api'
+import { setUser,setLoading,setError,logout as logoutAction } from "../auth.slice.js";
+import {register,login,getMe,logout as logoutApi} from '../services/auth.api.js'
 
 export function useAuth(){
      const dispatch=useDispatch()

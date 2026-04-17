@@ -1,9 +1,11 @@
 import { generateChatTitle, generateResponse } from "../services/ai.service.js"
 import ChatModel from "../models/chat.model.js";
 import MessageModel from "../models/message.model.js";
+import { getIo } from "../sockets/server.socket.js";
+
 export const sendMessageController = async (req, res) => {
     try {
-        const { message,chatId, model, searchDepth, topic} = req.body;
+        const { message,chatId, model, searchDepth, topic, requestId} = req.body;
        
         let chatTitle;
         let chat;
@@ -18,15 +20,23 @@ export const sendMessageController = async (req, res) => {
        
     }
 
+    const currentChatId = chatId || chat._id;
+
      const userMessage = await MessageModel.create({
-            chat: chatId || chat._id,
+            chat: currentChatId,
             content: message,
             role: "user"
         })
 
-    const messages=await MessageModel.find({chat:chatId || chat._id})
+    const messages=await MessageModel.find({chat:currentChatId})
      
-          const result = await generateResponse(messages, model, searchDepth, topic);
+          const result = await generateResponse(messages, model, searchDepth, topic, (chunk) => {
+              const targetRoom = requestId || currentChatId.toString();
+              getIo().to(targetRoom).emit("chat-message-chunk", {
+                  chunk: chunk,
+                  chatId: currentChatId
+              });
+          });
 
         const aiMessage = await MessageModel.create({
             chat: chatId || chat._id,

@@ -8,7 +8,7 @@ import { searchInternet } from "./searchInternet.service.js";
 
 const geminiModel = new ChatGoogle({
   apiKey:process.env.GEMINI_API_KEY,
-  model: "gemini-2.5-flash",
+  model: "gemini-2.5-flash-lite",
 });
 
 
@@ -17,7 +17,7 @@ const mistralModel = new ChatMistralAI({
     model: "mistral-small-latest",
 })
 
-export const generateResponse=async(messages, modelName, searchDepth = "basic", topic = "general")=>{
+export const generateResponse=async(messages, modelName, searchDepth = "basic", topic = "general", onChunk)=>{
 const dynamicSearchInternetTool = tool(
     async ({ query }) => {
         return await searchInternet({ query, searchDepth, topic });
@@ -40,7 +40,7 @@ const agent=createAgent({
 const currentDate = new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
 const currentTime = new Date().toLocaleTimeString('en-US');
 
-const response = await agent.invoke({
+const stream = await agent.stream({
   messages:[new SystemMessage(`
     You are a helpful assistant that answers user queries.
     Important: The current date is ${currentDate} and the current time is ${currentTime}.
@@ -54,9 +54,26 @@ const response = await agent.invoke({
     }else{
         return new AIMessage(message.content);
     }
-}))]});
+}))]
+}, { streamMode: "messages" });
 
-return response.messages[response.messages.length-1].text
+let fullResponse = "";
+console.log(stream)
+for await (const [message, metadata] of stream) {
+    if (metadata.langgraph_node === "model_request" && message.content) {
+        // Skip tool calls/function calls which come as an array/object in content
+        if (typeof message.content !== 'string') continue;
+        
+        const chunk = message.content;
+        fullResponse += chunk;
+      
+        if (onChunk) {
+            onChunk(chunk);
+        }
+    }
+}
+
+return fullResponse;
 }
 
 

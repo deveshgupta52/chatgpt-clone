@@ -14,7 +14,14 @@ export function initSocket(httpServer){
 
     io.on("connection",(socket)=>{
         console.log("New User Connected: "+socket.id)
-})
+
+        socket.on("join-chat", (chatId) => {
+            if (chatId) {
+                socket.join(chatId);
+                console.log(`Socket ${socket.id} joined room: ${chatId}`);
+            }
+        });
+    })
 }
 
 export function getIo(){

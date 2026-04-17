@@ -1,5 +1,5 @@
 import { getChats,deleteChat,getMessages,sendMessage } from "../service/chat.api";
-import { initializeSocketConnection } from "../service/chat.socket";
+import { initializeSocketConnection, joinChatRoom } from "../service/chat.socket";
 import { useDispatch, useSelector } from "react-redux";
 import { setChats, setCurrentChatId, setLoading, setCurrentMessages, setError } from "../chat.slice";
 
@@ -8,17 +8,21 @@ export const useChat=()=>{
 const dispatch=useDispatch()
 const { currentMessages, currentChatId } = useSelector(state => state.chat);
 
-const handleGetChats=async()=>{
-    try {
-        dispatch(setLoading(true))
-        const response=await getChats()
-        dispatch(setChats(response))
-    } catch (error) {
-        dispatch(setError(error.message))
-    }finally{
-        dispatch(setLoading(false))
+    const handleInitializeSocket = () => {
+        initializeSocketConnection(dispatch);
+    };
+
+    const handleGetChats=async()=>{
+        try {
+            dispatch(setLoading(true))
+            const response=await getChats()
+            dispatch(setChats(response))
+        } catch (error) {
+            dispatch(setError(error.message))
+        }finally{
+            dispatch(setLoading(false))
+        }
     }
-}
 
 const handleGetMessages=async(chatId)=>{
     try {
@@ -26,6 +30,7 @@ const handleGetMessages=async(chatId)=>{
         const response=await getMessages(chatId)
         dispatch(setCurrentChatId(chatId))
         dispatch(setCurrentMessages(response))
+        joinChatRoom(chatId)
     } catch (error) {
         dispatch(setError(error.message))
     }finally{
@@ -36,24 +41,31 @@ const handleGetMessages=async(chatId)=>{
     const handleSendMessage=async({message,chatId, model, searchDepth, topic})=>{
         try {
             // Optimistically update UI so user sees message instantly
-            const optimisticUserMessage = { _id: Date.now().toString(), content: message, role: "user" };
+            const optimisticUserMessage = { _id: "opt-user-" + Date.now(), content: message, role: "user" };
+            const optimisticAiMessage = { _id: "opt-ai-" + Date.now(), content: "", role: "ai" };
+            
             dispatch(setCurrentMessages({
-                messages: [...(currentMessages?.messages || []), optimisticUserMessage]
+                messages: [...(currentMessages?.messages || []), optimisticUserMessage, optimisticAiMessage]
             }));
 
             dispatch(setLoading(true))
-            const response=await sendMessage({message,chatId, model, searchDepth, topic})
-            const {chat,aiMessage,userMessage}=response
-              dispatch(setCurrentMessages({
-                messages: [...(currentMessages?.messages || []),userMessage, aiMessage]
-            }));
-
             
-            // Re-fetch everything to ensure accurate state & IDs
+            // Generate temporary ID for streaming (especially for new chats)
+            const requestId = "req-" + Date.now();
+            joinChatRoom(requestId);
+
+            const response=await sendMessage({message,chatId, model, searchDepth, topic, requestId})
+            const {chat,aiMessage,userMessage}=response
+            
+            // Re-fetch chats to update sidebar
             handleGetChats()
+            
             const finalChatId = (chat && chat._id) || chatId;
-            await handleGetMessages(finalChatId)
-            dispatch(setCurrentChatId(finalChatId))
+            if (!chatId && finalChatId) {
+                // If it was a new chat, join the room now
+                joinChatRoom(finalChatId);
+                dispatch(setCurrentChatId(finalChatId));
+            }
     } catch (error) {
         dispatch(setError(error.message))
     }finally{
@@ -81,5 +93,5 @@ const handleDeleteChat=async(chatId)=>{
     }
 }
 
-    return {initializeSocketConnection,handleGetChats,handleSendMessage,handleDeleteChat,handleGetMessages}
+    return {initializeSocketConnection: handleInitializeSocket,handleGetChats,handleSendMessage,handleDeleteChat,handleGetMessages,joinChatRoom}
 }

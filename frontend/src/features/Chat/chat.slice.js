@@ -26,10 +26,31 @@ const chatSlice = createSlice({
         },
         setError:(state,action)=>{
             state.error=action.payload
+        },
+        updateMessageChunk: (state, action) => {
+            const { chunk } = action.payload;
+            if (!state.currentMessages.messages) {
+                state.currentMessages.messages = [];
+            }
+            
+            const messages = state.currentMessages.messages;
+            const lastMessage = messages[messages.length - 1];
+
+            if (lastMessage && lastMessage.role === "ai") {
+                // Correctly append to existing AI message content
+                lastMessage.content += chunk;
+            } else {
+                // First chunk of a new AI response
+                messages.push({
+                    _id: "loading-" + Date.now(),
+                    content: chunk,
+                    role: "ai"
+                });
+            }
         }
     }
 })
 
-export const {setChats,setCurrentChatId,setLoading,setError,setCurrentMessages}=chatSlice.actions
+export const {setChats,setCurrentChatId,setLoading,setError,setCurrentMessages, updateMessageChunk}=chatSlice.actions
 
 export default chatSlice.reducer

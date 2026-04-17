@@ -33,7 +33,7 @@ const handleGetMessages=async(chatId)=>{
     }
 }
 
-    const handleSendMessage=async({message,chatId})=>{
+    const handleSendMessage=async({message,chatId, model, searchDepth, topic})=>{
         try {
             // Optimistically update UI so user sees message instantly
             const optimisticUserMessage = { _id: Date.now().toString(), content: message, role: "user" };
@@ -42,7 +42,7 @@ const handleGetMessages=async(chatId)=>{
             }));
 
             dispatch(setLoading(true))
-            const response=await sendMessage({message,chatId})
+            const response=await sendMessage({message,chatId, model, searchDepth, topic})
             const {chat,aiMessage,userMessage}=response
               dispatch(setCurrentMessages({
                 messages: [...(currentMessages?.messages || []),userMessage, aiMessage]

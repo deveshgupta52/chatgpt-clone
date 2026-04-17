@@ -20,8 +20,8 @@ export const deleteChat=async(chatId)=>{
     return response.data
 }
 
-export const sendMessage=async({message,chatId})=>{
-    const response=await api.post("/message",{message,chatId})
+export const sendMessage=async({message,chatId, model, searchDepth, topic})=>{
+    const response=await api.post("/message",{message,chatId, model, searchDepth, topic})
     return response.data
 }
 

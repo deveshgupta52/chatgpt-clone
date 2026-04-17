@@ -12,6 +12,8 @@ const Dashboard = () => {
 
     const [isRecentOpen, setIsRecentOpen] = useState(false)
     const [isSidebarOpen, setIsSidebarOpen] = useState(false)
+    const [selectedModel, setSelectedModel] = useState("mistral")
+    const [isModelDropdownOpen, setIsModelDropdownOpen] = useState(false)
     const dispatch = useDispatch()
     const messagesEndRef = useRef(null)
 
@@ -32,8 +34,8 @@ const Dashboard = () => {
         if(window.innerWidth < 768) setIsSidebarOpen(false)
     }
 
-    const handleSend = (msg) => {
-        handleSendMessage({ message: msg, chatId: currentChatId });
+    const handleSend = (msg, searchDepth, topic) => {
+        handleSendMessage({ message: msg, chatId: currentChatId, model: selectedModel, searchDepth, topic });
     }
 
     useEffect(()=>{
@@ -124,9 +126,50 @@ const Dashboard = () => {
                 <h1 className='text-lg font-medium text-white tracking-wide'>ChatGPT</h1>
             </div>
             
-            <button className='text-neutral-400 hover:text-white transition-colors p-2 hover:bg-neutral-800 rounded-lg focus:outline-none'>
-                <MoreHorizontal className='w-6 h-6' />
-            </button>
+            <div className='flex items-center gap-2'>
+                <div className='relative'>
+                    <button 
+                        onClick={() => setIsModelDropdownOpen(!isModelDropdownOpen)}
+                        className='flex items-center justify-between bg-black hover: text-xs font-medium text-neutral-400 hover:text-neutral-300 py-1.5 px-3 rounded-lg border border-neutral-800 shadow-sm focus:outline-none transition-all w-32 cursor-pointer'
+                    >
+                        <span>{selectedModel === 'mistral' ? 'Mistral' : 'Gemini Flash'}</span>
+                        <svg className={`fill-current h-3.5 w-3.5 ml-2 transition-transform duration-200 ${isModelDropdownOpen ? 'rotate-180' : ''}`} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg>
+                    </button>
+                    
+                    {isModelDropdownOpen && (
+                        <>
+                            <div 
+                                className="fixed inset-0 z-40" 
+                                onClick={() => setIsModelDropdownOpen(false)}
+                            />
+                            <div className="absolute right-0 mt-1 w-32 bg-neutral-900 border border-neutral-800 rounded-lg shadow-xl overflow-hidden z-50">
+                                <button
+                                    onClick={() => {
+                                        setSelectedModel('mistral');
+                                        setIsModelDropdownOpen(false);
+                                    }}
+                                    className={`w-full text-left px-3 py-2 text-xs font-medium transition-colors ${selectedModel === 'mistral' ? 'bg-neutral-800 text-white' : 'text-neutral-400 hover:bg-neutral-800 hover:text-neutral-200'}`}
+                                >
+                                    Mistral
+                                </button>
+                                <button
+                                    onClick={() => {
+                                        setSelectedModel('gemini');
+                                        setIsModelDropdownOpen(false);
+                                    }}
+                                    className={`w-full text-left px-3 py-2 text-xs font-medium transition-colors ${selectedModel === 'gemini' ? 'bg-neutral-800 text-white' : 'text-neutral-400 hover:bg-neutral-800 hover:text-neutral-200'}`}
+                                >
+                                    Gemini Flash
+                                </button>
+                            </div>
+                        </>
+                    )}
+                </div>
+                
+                <button className='text-neutral-400 hover:text-white transition-colors p-2 hover:bg-neutral-800 rounded-lg focus:outline-none'>
+                    <MoreHorizontal className='w-6 h-6' />
+                </button>
+            </div>
           </div>
           
           <div className='flex-1 overflow-y-auto pb-24'>

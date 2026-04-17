@@ -17,22 +17,26 @@ const mistralModel = new ChatMistralAI({
     model: "mistral-small-latest",
 })
 
-const searvhInternetTool = tool(searchInternet, {
-    name: "searchInternet",
-    description: "Use this tool to get the latest information from the internet",
-    schema: z.object({
-        query: z.string().describe("The query to search the internet for"),
-    }),
-});
-
+export const generateResponse=async(messages, modelName, searchDepth = "basic", topic = "general")=>{
+const dynamicSearchInternetTool = tool(
+    async ({ query }) => {
+        return await searchInternet({ query, searchDepth, topic });
+    },
+    {
+        name: "searchInternet",
+        description: "Use this tool to get the latest information from the internet",
+        schema: z.object({
+            query: z.string().describe("The query to search the internet for"),
+        }),
+    }
+);
 
 const agent=createAgent({
-  model:mistralModel,
-  tools:[searvhInternetTool],
+  model: modelName === "gemini" ? geminiModel : mistralModel,
+  tools:[dynamicSearchInternetTool],
   systemMessage:"You are a helpful assistant that answers user queries",
 })
 
-export const generateResponse=async(messages)=>{
 const currentDate = new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
 const currentTime = new Date().toLocaleTimeString('en-US');
 

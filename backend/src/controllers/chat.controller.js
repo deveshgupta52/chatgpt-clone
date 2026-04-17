@@ -3,7 +3,7 @@ import ChatModel from "../models/chat.model.js";
 import MessageModel from "../models/message.model.js";
 export const sendMessageController = async (req, res) => {
     try {
-        const { message,chatId} = req.body;
+        const { message,chatId, model, searchDepth, topic} = req.body;
        
         let chatTitle;
         let chat;
@@ -26,7 +26,7 @@ export const sendMessageController = async (req, res) => {
 
     const messages=await MessageModel.find({chat:chatId || chat._id})
      
-          const result = await generateResponse(messages);
+          const result = await generateResponse(messages, model, searchDepth, topic);
 
         const aiMessage = await MessageModel.create({
             chat: chatId || chat._id,

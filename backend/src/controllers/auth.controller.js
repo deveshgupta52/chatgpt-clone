@@ -328,3 +328,54 @@ export const resendVerifyEmailController = async (req, res) => {
         })
     }
 }
+
+export const googleCallback = async (req, res) => {
+    try {
+        // Extract data from Google profile provided by Passport
+        const { id, displayName, emails } = req.user;
+        const email = emails[0].value;
+        const profilePhoto = req.user.photos?.[0]?.value;
+
+        // 1. Check if user already exists
+        let user = await UserModel.findOne({ email });
+
+        if (!user) {
+            // Create new user if they don't exist
+            // Google users are automatically verified
+            user = await UserModel.create({
+                email,
+                username: (displayName || email.split('@')[0]).replace(/\s+/g, '').toLowerCase() + Math.random().toString(36).substring(7),
+                googleId: id,
+                verified: true
+            });
+        } else if (!user.googleId) {
+            // If user exists by email but hasn't linked Google yet
+            user.googleId = id;
+            user.verified = true;
+            await user.save();
+        }
+
+        // 2. Generate JWT Token
+        const token = jwt.sign({
+            id: user._id,
+            username: user.username
+        }, process.env.JWT_SECRET, { expiresIn: '7d' });
+
+        // 3. Set Cookie
+        res.cookie("token", token, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production", // Only secure in production
+            sameSite: process.env.NODE_ENV === "production" ? 'none' : 'lax',
+            maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
+        });
+
+        // 4. Final Redirect to Frontend
+        const frontendUrl = process.env.FRONTEND_URL || "http://localhost:5173";
+        res.redirect(`${frontendUrl}/dashboard` || frontendUrl);
+
+    } catch (error) {
+        console.error("Google Auth Error:", error);
+        const frontendUrl = process.env.FRONTEND_URL || "http://localhost:5173";
+        res.redirect(`${frontendUrl}/login?error=google_auth_failed`);
+    }
+}

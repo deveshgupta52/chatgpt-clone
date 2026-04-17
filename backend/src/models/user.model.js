@@ -12,9 +12,13 @@ const userSchema=new mongoose.Schema({
         unique:[true,"Email must be unique"],
         required:[true,"Email is required"]
     },
+    googleId:{
+        type:String,
+        default:null
+    },
     password:{
         type:String,
-        required:[true,"Password is required"]
+        required: function() { return !this.googleId; } // Only required if not an OAuth user
     },
     verified:{
         type:Boolean,

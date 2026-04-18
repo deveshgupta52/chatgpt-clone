@@ -16,7 +16,7 @@ const MessageItem = ({ msg }) => {
     return (
         <div className={`flex flex-col ${msg.role === 'user' ? 'items-end' : 'items-start'} group w-full mb-2`}>
             <div className={`flex w-full ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                <div className={`p-4 rounded-xl md:max-w-[85%] ${msg.role === 'user' ? 'bg-neutral-800 text-neutral-100 font-body' : 'bg-transparent text-neutral-300 font-body hover:bg-white/[0.02] font-light overflow-hidden'}`}>
+                <div className={`p-4 rounded-xl md:max-w-[85%] ${msg.role === 'user' ? 'bg-neutral-800 text-neutral-100 font-body' : 'bg-transparent text-neutral-300 font-body hover:bg-white/[0.02] font-light overflow-hidden pb-40'}`}>
                     {msg.role === 'ai' && !msg.content ? (
                         <div className="flex items-center gap-1.5 py-2 px-1">
                             <div className="w-1.5 h-1.5 bg-neutral-500 rounded-full animate-bounce [animation-delay:-0.3s]"></div>

@@ -1,7 +1,7 @@
 import { getChats,deleteChat,getMessages,sendMessage } from "../service/chat.api";
 import { initializeSocketConnection, joinChatRoom } from "../service/chat.socket";
 import { useDispatch, useSelector } from "react-redux";
-import { setChats, setCurrentChatId, setLoading, setCurrentMessages, setError } from "../chat.slice";
+import { setChats, setCurrentChatId, setLoading, setCurrentMessages, setError, setGenerating } from "../chat.slice";
 
 export const useChat=()=>{
 
@@ -27,10 +27,11 @@ const { currentMessages, currentChatId } = useSelector(state => state.chat);
 const handleGetMessages=async(chatId)=>{
     try {
         dispatch(setLoading(true))
+        
         const response=await getMessages(chatId)
         dispatch(setCurrentChatId(chatId))
         dispatch(setCurrentMessages(response))
-        joinChatRoom(chatId)
+        joinChatRoom(chatId) 
     } catch (error) {
         dispatch(setError(error.message))
     }finally{
@@ -43,6 +44,9 @@ const handleGetMessages=async(chatId)=>{
             // Optimistically update UI so user sees message instantly
             const optimisticUserMessage = { _id: "opt-user-" + Date.now(), content: message, role: "user" };
             const optimisticAiMessage = { _id: "opt-ai-" + Date.now(), content: "", role: "ai" };
+            
+            // Set generating to true to lock input
+            dispatch(setGenerating(true));
             
             dispatch(setCurrentMessages({
                 messages: [...(currentMessages?.messages || []), optimisticUserMessage, optimisticAiMessage]
@@ -68,8 +72,14 @@ const handleGetMessages=async(chatId)=>{
             }
     } catch (error) {
         dispatch(setError(error.message))
+        dispatch(setGenerating(false));
     }finally{
         dispatch(setLoading(false))
+        
+        // Safety timeout: Re-enable after 60s if socket signal misses
+        setTimeout(() => {
+            dispatch(setGenerating(false));
+        }, 60000);
     }
 }
 

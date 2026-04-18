@@ -38,6 +38,12 @@ export const sendMessageController = async (req, res) => {
               });
           });
 
+        // Signal that generation is truly finished
+        const targetRoom = requestId || currentChatId.toString();
+        getIo().to(targetRoom).emit("chat-message-finished", {
+            chatId: currentChatId
+        });
+
         const aiMessage = await MessageModel.create({
             chat: chatId || chat._id,
             content: result,

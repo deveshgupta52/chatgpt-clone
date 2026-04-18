@@ -2,7 +2,7 @@ import { io } from "socket.io-client";
 
 
 
-import { updateMessageChunk } from "../chat.slice";
+import { updateMessageChunk, setGenerating } from "../chat.slice";
 
 let socket;
 let savedDispatch;
@@ -28,6 +28,20 @@ export const initializeSocketConnection=(dispatch)=>{
         console.log("chat-message-chunk", data);
         if (savedDispatch && data.chunk) {
             savedDispatch(updateMessageChunk({ chunk: data.chunk, chatId: data.chatId }));
+        }
+    });
+
+    // Reset generating state when message is finished
+    socket.on("chat-message-finished", () => {
+        if (savedDispatch) {
+            savedDispatch(setGenerating(false));
+        }
+    });
+
+    socket.on("error", (error) => {
+        console.error("Socket error:", error);
+        if (savedDispatch) {
+            savedDispatch(setGenerating(false));
         }
     });
 

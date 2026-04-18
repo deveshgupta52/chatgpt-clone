@@ -19,28 +19,67 @@ const Dashboard = () => {
     const [activeMenuId, setActiveMenuId] = useState(null)
     const [isHeaderMenuOpen, setIsHeaderMenuOpen] = useState(false)
     const [deleteModalConfig, setDeleteModalConfig] = useState({ isOpen: false, chatId: null, chatTitle: '' })
+    const [showScrollButton, setShowScrollButton] = useState(false)
     const dispatch = useDispatch()
     const messagesEndRef = useRef(null)
     const scrollContainerRef = useRef(null)
 
     const scrollToBottom = (behavior = "auto") => {
         if (messagesEndRef.current) {
-            messagesEndRef.current.scrollIntoView({ behavior })
+            messagesEndRef.current.scrollIntoView({ behavior, block: "end" })
         }
     }
 
 
     const { initializeSocketConnection, handleGetChats, handleGetMessages, handleSendMessage, handleDeleteChat } = useChat()
     const { handleLogout } = useAuth()
-    const { chats, currentMessages, currentChatId } = useSelector((state) => state.chat)
+    const { chats, currentMessages, currentChatId, isGenerating } = useSelector((state) => state.chat)
     const { user } = useSelector((state) => state.auth)
 
+
+   useEffect(() => {
+    if (currentChatId) {
+        // 100ms ka delay zaruri hai taaki content render ho jaye 
+        // phir scroll trigger ho.
+        const timer = setTimeout(() => scrollToBottom("instant"), 100);
+        return () => clearTimeout(timer);
+    }
+}, [currentChatId]);
+
+    // Watch for scroll position to show/hide the "Scroll to Bottom" button
+    const handleScroll = () => {
+        const container = scrollContainerRef.current
+        if (!container) return
+
+        // Show button if user is more than 300px away from bottom
+        const isUserScrolledUp = container.scrollHeight - container.scrollTop > container.clientHeight + 300
+        setShowScrollButton(isUserScrolledUp)
+    }
+
+    // Attach scroll listener
+    useEffect(() => {
+        const container = scrollContainerRef.current
+        if (container) {
+            container.addEventListener('scroll', handleScroll)
+            return () => container.removeEventListener('scroll', handleScroll)
+        }
+    }, [])
+
+    // Force scroll to bottom when AI starts generating a new response
+    useEffect(() => {
+        if (isGenerating) {
+            scrollToBottom("smooth")
+        }
+    }, [isGenerating])
+
+    // Regular scroll logic for message updates
     useEffect(() => {
         const container = scrollContainerRef.current
         if (!container) return
 
-        const isAtBottom = container.scrollHeight - container.scrollTop <= container.clientHeight + 150
-
+        // If the user is already near the bottom, follow the stream
+        const isAtBottom = container.scrollHeight - container.scrollTop <= container.clientHeight + 400
+        
         if (isAtBottom) {
             scrollToBottom("auto")
         }
@@ -205,7 +244,7 @@ const Dashboard = () => {
             </div>
 
             {/* Main Content Area */}
-            <div className='flex-1 relative flex flex-col h-screen w-full'>
+            <div className='flex-1 relative flex flex-col h-screen w-4/5'>
                 <div className='shrink-0 flex justify-between items-center p-4'>
                     <div className='flex items-center gap-4'>
                         {/* Premium Mobile Menu Toggle */}
@@ -293,7 +332,7 @@ const Dashboard = () => {
 
                 <div
                     ref={scrollContainerRef}
-                    className='flex-1 overflow-y-auto pb-30 scroll-smooth'
+                    className='flex-1 overflow-y-auto pb-72 scroll-smooth relative custom-scrollbar'
                 >
                     {(!currentChatId && (!currentMessages?.messages || currentMessages.messages.length === 0)) ? (
                         <NewChat onSendMessage={handleSend} />
@@ -302,13 +341,28 @@ const Dashboard = () => {
                             {currentMessages?.messages?.map((msg) => (
                                 <MessageItem key={msg._id || msg.id} msg={msg} />
                             ))}
-                            <div ref={messagesEndRef} />
+                            <div ref={messagesEndRef} className="h-4" />
                         </div>
+                    )}
+
+                    {/* Scroll to Bottom Floating Button */}
+                    {showScrollButton && (
+                        <button
+                            onClick={() => scrollToBottom("smooth")}
+                            className='fixed bottom-36 right-8 z-50 p-2.5 bg-neutral-800/90 border border-white/10 rounded-full text-neutral-300 hover:text-white hover:bg-neutral-700 shadow-2xl transition-all animate-in fade-in zoom-in duration-200'
+                        >
+                            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 13l-7 7-7-7m14-8l-7 7-7-7" />
+                            </svg>
+                        </button>
                     )}
                 </div>
 
+                {/* Gradient Overlay for smooth message fading under the input */}
+                <div className="absolute bottom-0 left-0 right-0 h-40 bg-gradient-to-t from-neutral-900 via-neutral-900/80 to-transparent pointer-events-none z-10" />
+
                 {(currentChatId || (currentMessages?.messages && currentMessages.messages.length > 0)) && (
-                    <div className='absolute bottom-0 w-full bg-neutral-900/80 backdrop-blur-sm'>
+                    <div className='absolute bottom-0 w-full z-20'>
                         <div className='w-full p-4 pt-2 pb-6'>
                             <div className='w-full md:w-[80%] mx-auto max-w-3xl px-4 md:px-0'>
                                 <ChatInput onSend={handleSend} />

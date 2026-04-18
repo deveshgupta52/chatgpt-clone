@@ -371,8 +371,7 @@ export const googleCallback = async (req, res) => {
 
         // 4. Final Redirect to Frontend
         const frontendUrl = process.env.FRONTEND_URL || "http://localhost:5173";
-        res.redirect(`${frontendUrl}/dashboard` || frontendUrl);
-
+        res.redirect(`${frontendUrl}` || "http://localhost:5173");
     } catch (error) {
         console.error("Google Auth Error:", error);
         const frontendUrl = process.env.FRONTEND_URL || "http://localhost:5173";

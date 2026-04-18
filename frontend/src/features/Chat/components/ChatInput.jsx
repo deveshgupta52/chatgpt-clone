@@ -6,7 +6,7 @@ import { useChat } from '../hooks/useChat';
 const ChatInput = ({ onSend }) => {
     const [message, setMessage] = useState('');
     const [searchDepth, setSearchDepth] = useState('basic');
-    const [searchLabel, setSearchLabel] = useState('Basic (Default)');
+    const [searchLabel, setSearchLabel] = useState('Basic');
     const [topic, setTopic] = useState('general');
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const textareaRef = useRef(null);
@@ -56,7 +56,7 @@ const ChatInput = ({ onSend }) => {
     const depthOptions = [
         { label: 'Ultra Fast', value: 'basic' },
         { label: 'Fast', value: 'basic' },
-        { label: 'Basic (Default)', value: 'basic' },
+        { label: 'Basic', value: 'basic' }, 
         { label: 'Advanced', value: 'advanced' }
     ];
 

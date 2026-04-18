@@ -5,10 +5,11 @@ import { ChatMistralAI } from "@langchain/mistralai"
 
 import * as z from "zod"
 import { searchInternet } from "./searchInternet.service.js";
+import { queryRelevantContext } from "./vector.service.js";
 
 const geminiModel = new ChatGoogle({
   apiKey:process.env.GEMINI_API_KEY,
-  model: "gemini-2.5-flash-lite",
+  model: "gemini-1.5-flash",
 });
 
 
@@ -17,7 +18,15 @@ const mistralModel = new ChatMistralAI({
     model: "mistral-small-latest",
 })
 
-export const generateResponse=async(messages, modelName, searchDepth = "basic", topic = "general", onChunk)=>{
+export const generateResponse=async(messages, modelName, searchDepth = "basic", topic = "general", onChunk, userId)=>{
+    // Get relevant context from Pinecone if userId is provided
+    let fileContext = "";
+    if (userId) {
+        const lastUserMessage = [...messages].reverse().find(m => m.role === "user")?.content;
+        if (lastUserMessage) {
+            fileContext = await queryRelevantContext(userId, lastUserMessage);
+        }
+    }
 const dynamicSearchInternetTool = tool(
     async ({ query }) => {
         return await searchInternet({ query, searchDepth, topic });
@@ -47,18 +56,41 @@ const stream = await agent.stream({
     Whenever the user asks for "today's", "latest", "recent", or current information, DO NOT assume the year based on your training data. 
     Always use this exact current date and time as your chronological context. 
     If you need to search the internet for the latest information, use the searchInternet tool and explicitly include the current year and date in your search queries to fetch up-to-date information.
+
+    ${fileContext ? `BACKGROUND KNOWLEDGE FROM USER'S UPLOADED DOCUMENTS (for context only):
+    ---
+    ${fileContext}
+    ---
+    If the user's latest message or image is about something completely different, PRIORITIZE the current input. Only use the background knowledge if it helps answer the query or provides requested information.` : ""}
     `),
-    ...(messages.map((message)=>{
-    if(message.role==="user"){
-        return new HumanMessage(message.content);
-    }else{
-        return new AIMessage(message.content);
-    }
-}))]
+    ...(messages.map((message) => {
+        if (message.role === "user") {
+            // Check for image attachments
+            const images = message.attachments?.filter(a => 
+                a.url && (
+                    a.url.match(/\.(jpg|jpeg|png|webp|gif)$/i) || 
+                    (a.fileType && a.fileType.startsWith('image'))
+                )
+            );
+
+            if (images && images.length > 0) {
+                const content = [
+                    { type: "text", text: message.content },
+                    ...images.map(img => ({
+                        type: "image_url",
+                        image_url: { url: img.url }
+                    }))
+                ];
+                return new HumanMessage({ content });
+            }
+            return new HumanMessage(message.content);
+        } else {
+            return new AIMessage(message.content);
+        }
+    }))]
 }, { streamMode: "messages" });
 
 let fullResponse = "";
-console.log(stream)
 for await (const [message, metadata] of stream) {
     if (metadata.langgraph_node === "model_request" && message.content) {
         // Skip tool calls/function calls which come as an array/object in content

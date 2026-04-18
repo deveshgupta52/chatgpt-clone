@@ -3,6 +3,8 @@ import ChatModel from "../models/chat.model.js";
 import MessageModel from "../models/message.model.js";
 import { getIo } from "../sockets/server.socket.js";
 import { uploadFile } from "../services/storage.service.js";
+import { extractText } from "../services/parser.service.js";
+import { upsertFileChunks } from "../services/vector.service.js";
 
 export const sendMessageController = async (req, res) => {
     try {
@@ -38,7 +40,7 @@ export const sendMessageController = async (req, res) => {
                   chunk: chunk,
                   chatId: currentChatId
               });
-          });
+          }, req.user?._id || req.user?.id);
 
         // Signal that generation is truly finished
         const targetRoom = requestId || currentChatId.toString();
@@ -147,6 +149,22 @@ export const fileUploadController=async(req,res)=>{
         const files=req.files
         const uploadedFiles=await Promise.all(files.map(async(file)=>{
             const result=await uploadFile({buffer:file.buffer,fileName:file.originalname})
+            
+            // Background processing for RAG (No need to await everything if it takes long,
+            // but for now we'll do it sequentially to ensure indexing is done)
+            try {
+
+                console.log(file.buffer, file.mimetype)
+                const text = await extractText(file.buffer, file.mimetype);
+                console.log(text)
+                if (text) {
+                    await upsertFileChunks(req.user?._id || req.user?.id, result.fileId, text, result.name);
+                }
+            } catch (err) {
+                console.error("RAG Indexing error:", err);
+                // We still return the uploaded file even if indexing fails
+            }
+
             return result
         }))
         res.status(200).json({

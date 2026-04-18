@@ -58,17 +58,34 @@ const MessageItem = ({ msg }) => {
 
                     {/* Show Attachments */}
                     {msg.attachments && msg.attachments.length > 0 && (
-                        <div className="flex flex-wrap gap-2 mt-4 pt-4 border-t border-white/5">
+                        <div className="flex flex-wrap gap-3 mt-4 pt-4 border-t border-white/5">
                             {msg.attachments.map((file, idx) => (
-                                <div key={idx} className="flex items-center gap-2 bg-neutral-900/50 border border-white/5 px-2.5 py-1.5 rounded-lg">
+                                <div key={idx} className="flex flex-col gap-2 max-w-[200px]">
                                     {file.fileType === 'image' ? (
-                                        <ImageIcon className="w-3.5 h-3.5 text-emerald-500" />
+                                        <div className="relative group/img overflow-hidden rounded-xl border border-white/10 bg-neutral-900 shadow-lg">
+                                            <img 
+                                                src={file.url} 
+                                                alt={file.name} 
+                                                className="w-full h-auto max-h-[150px] object-cover transition-transform duration-300 group-hover/img:scale-105"
+                                            />
+                                            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover/img:opacity-100 transition-opacity flex items-center justify-center">
+                                                <a href={file.url} target="_blank" rel="noopener noreferrer" className="text-[10px] bg-white text-black px-2 py-1 rounded-full font-bold uppercase tracking-wider">View Full</a>
+                                            </div>
+                                        </div>
                                     ) : (
-                                        <FileText className="w-3.5 h-3.5 text-blue-500" />
+                                        <div className="flex items-center gap-2 bg-neutral-900/80 border border-white/5 px-2.5 py-2 rounded-xl">
+                                            <FileText className="w-4 h-4 text-blue-500" />
+                                            <span className="text-[11px] text-neutral-400 font-medium truncate max-w-[120px]">
+                                                {file.name}
+                                            </span>
+                                        </div>
                                     )}
-                                    <span className="text-[11px] text-neutral-400 font-medium truncate max-w-[150px]">
-                                        {file.name}
-                                    </span>
+                                    {file.fileType === 'image' && (
+                                        <div className="flex items-center gap-1.5 px-1">
+                                            <ImageIcon className="w-3 h-3 text-emerald-500" />
+                                            <span className="text-[10px] text-neutral-500 truncate font-medium">{file.name}</span>
+                                        </div>
+                                    )}
                                 </div>
                             ))}
                         </div>

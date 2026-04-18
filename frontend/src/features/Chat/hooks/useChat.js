@@ -1,4 +1,4 @@
-import { getChats,deleteChat,getMessages,sendMessage } from "../service/chat.api";
+import { getChats,deleteChat,getMessages,sendMessage, uploadFiles } from "../service/chat.api";
 import { initializeSocketConnection, joinChatRoom } from "../service/chat.socket";
 import { useDispatch, useSelector } from "react-redux";
 import { setChats, setCurrentChatId, setLoading, setCurrentMessages, setError, setGenerating } from "../chat.slice";
@@ -39,15 +39,22 @@ const handleGetMessages=async(chatId)=>{
     }
 }
 
-    const handleSendMessage=async({message,chatId, model, searchDepth, topic})=>{
+    const handleSendMessage=async({message,chatId, model, searchDepth, topic, files})=>{
         try {
             // Optimistically update UI so user sees message instantly
-            const optimisticUserMessage = { _id: "opt-user-" + Date.now(), content: message, role: "user" };
+            const optimisticUserMessage = { 
+                _id: "opt-user-" + Date.now(), 
+                content: message, 
+                role: "user",
+                attachments: files // Store attachments for UI feedback
+            };
             const optimisticAiMessage = { _id: "opt-ai-" + Date.now(), content: "", role: "ai" };
             
             // Set generating to true to lock input
             dispatch(setGenerating(true));
             
+            console.log("Sending message with attachments:", files);
+
             dispatch(setCurrentMessages({
                 messages: [...(currentMessages?.messages || []), optimisticUserMessage, optimisticAiMessage]
             }));
@@ -58,7 +65,7 @@ const handleGetMessages=async(chatId)=>{
             const requestId = "req-" + Date.now();
             joinChatRoom(requestId);
 
-            const response=await sendMessage({message,chatId, model, searchDepth, topic, requestId})
+            const response=await sendMessage({message,chatId, model, searchDepth, topic, requestId, files})
             const {chat,aiMessage,userMessage}=response
             
             // Re-fetch chats to update sidebar
@@ -103,5 +110,19 @@ const handleDeleteChat=async(chatId)=>{
     }
 }
 
-    return {initializeSocketConnection: handleInitializeSocket,handleGetChats,handleSendMessage,handleDeleteChat,handleGetMessages,joinChatRoom}
+const handleUploadFiles=async(files)=>{
+    try {
+        const formData=new FormData()
+        files.forEach(file => {
+            formData.append('files',file)
+        });
+        const response=await uploadFiles(formData)
+        return response
+    } catch (error) {
+        dispatch(setError(error.message))
+        throw error
+    }
+}
+
+    return {initializeSocketConnection: handleInitializeSocket,handleGetChats,handleSendMessage,handleDeleteChat,handleGetMessages,joinChatRoom, handleUploadFiles}
 }

@@ -2,10 +2,11 @@ import { generateChatTitle, generateResponse } from "../services/ai.service.js"
 import ChatModel from "../models/chat.model.js";
 import MessageModel from "../models/message.model.js";
 import { getIo } from "../sockets/server.socket.js";
+import { uploadFile } from "../services/storage.service.js";
 
 export const sendMessageController = async (req, res) => {
     try {
-        const { message,chatId, model, searchDepth, topic, requestId} = req.body;
+        const { message, chatId, model, searchDepth, topic, requestId, files } = req.body;
        
         let chatTitle;
         let chat;
@@ -14,18 +15,19 @@ export const sendMessageController = async (req, res) => {
             chatTitle=await generateChatTitle(message)
 
          chat = await ChatModel.create({
-                user: req.user.id,
+                user: req.user?._id || req.user?.id,
                 title: chatTitle
         });
        
     }
 
     const currentChatId = chatId || chat._id;
-
-     const userMessage = await MessageModel.create({
+    console.log(files)
+      const userMessage = await MessageModel.create({
             chat: currentChatId,
             content: message,
-            role: "user"
+            role: "user",
+            attachments: files || []
         })
 
     const messages=await MessageModel.find({chat:currentChatId})
@@ -135,6 +137,26 @@ export const deleteChat=async(req,res)=>{
     } catch (error) {
         res.status(500).json({
             message: "Failed to delete chat",
+            error: error.message 
+        });
+    }
+}
+
+export const fileUploadController=async(req,res)=>{
+    try {
+        const files=req.files
+        const uploadedFiles=await Promise.all(files.map(async(file)=>{
+            const result=await uploadFile({buffer:file.buffer,fileName:file.originalname})
+            return result
+        }))
+        res.status(200).json({
+            success:true,
+            message:"Files uploaded successfully",
+            files:uploadedFiles
+        });
+    } catch (error) {
+        res.status(500).json({
+            message: "Failed to upload files",
             error: error.message 
         });
     }

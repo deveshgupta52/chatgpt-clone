@@ -11,7 +11,7 @@ const NewChat = ({ onSendMessage }) => {
                 </h1>
                 
                 <div className="w-[85%]">
-                    <ChatInput onSend={(msg, searchDepth, topic) => onSendMessage(msg, searchDepth, topic)} />
+                    <ChatInput onSend={(msg, searchDepth, topic, files) => onSendMessage(msg, searchDepth, topic, files)} />
                 </div>
             </div>
             {/* We could add some suggestion pills here like ChatGPT */}

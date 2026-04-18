@@ -90,8 +90,8 @@ const Dashboard = () => {
         if (window.innerWidth < 768) setIsSidebarOpen(false)
     }
 
-    const handleSend = (msg, searchDepth, topic) => {
-        handleSendMessage({ message: msg, chatId: currentChatId, model: selectedModel, searchDepth, topic });
+    const handleSend = (msg, searchDepth, topic, files) => {
+        handleSendMessage({ message: msg, chatId: currentChatId, model: selectedModel, searchDepth, topic, files });
     }
 
     useEffect(() => {

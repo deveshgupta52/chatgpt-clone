@@ -20,8 +20,13 @@ export const deleteChat=async(chatId)=>{
     return response.data
 }
 
-export const sendMessage=async({message,chatId, model, searchDepth, topic, requestId})=>{
-    const response=await api.post("/message",{message,chatId, model, searchDepth, topic, requestId})
+export const sendMessage=async({message,chatId, model, searchDepth, topic, requestId, files})=>{
+    const response=await api.post("/message",{message,chatId, model, searchDepth, topic, requestId, files})
+    return response.data
+}
+
+export const uploadFiles=async(formData)=>{
+    const response=await api.post("/file",formData)
     return response.data
 }
 

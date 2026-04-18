@@ -14,7 +14,15 @@ const messageSchema = new mongoose.Schema({
         type: String,
         enum: ["user", "ai"],
         required: [true, "Role is required"]
-    }
+    },
+    attachments: [
+        {
+            name: String,
+            url: String,
+            fileType: String,
+            fileId: String
+        }
+    ]
 }, {timestamps: true})
 
  const MessageModel = mongoose.model("Message", messageSchema)

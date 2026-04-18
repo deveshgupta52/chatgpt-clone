@@ -9,7 +9,7 @@ import { queryRelevantContext } from "./vector.service.js";
 
 const geminiModel = new ChatGoogle({
   apiKey:process.env.GEMINI_API_KEY,
-  model: "gemini-1.5-flash",
+  model: "gemini-2.5-flash-lite",
 });
 
 

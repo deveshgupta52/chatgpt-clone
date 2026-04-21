@@ -45,7 +45,7 @@ export const registerController = async (req, res) => {
 
             await sendEmail({
                 to: email,
-                subject: "Verify Your Email - Perplexity",
+                subject: "Verify Your Email - ChatGPT",
                 html: htmlContent,
                 text: `Please verify your email at: ${process.env.BACKEND_URL || 'http://localhost:3000'}/api/auth/verify-email?verifytoken=${verifyEmailToken}`
             })
@@ -85,7 +85,7 @@ export const registerController = async (req, res) => {
 
     await sendEmail({
         to: email,
-        subject: "Welcome to Perplexity - Verify Your Email",
+        subject: "Welcome to ChatGPT - Verify Your Email",
         html: htmlContent,
         text: `Welcome ${username}! Please verify your email at: ${process.env.BACKEND_URL || 'http://localhost:3000'}/api/auth/verify-email?verifytoken=${verifyEmailToken}`
     })
@@ -148,7 +148,8 @@ res.cookie("token", token, {
     maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
 })
 
- return res.redirect("http://localhost:5173/login")
+ const frontendUrl = process.env.FRONTEND_URL || "http://localhost:5173";
+ return res.redirect(`${frontendUrl}/login`);
 
 
     } catch (error) {
@@ -310,7 +311,7 @@ export const resendVerifyEmailController = async (req, res) => {
 
         await sendEmail({
             to: email,
-            subject: "Verify Your Email - Perplexity",
+            subject: "Verify Your Email - ChatGPT",
             html: htmlContent,
             text: `Please verify your email at: ${process.env.BACKEND_URL || 'http://localhost:3000'}/api/auth/verify-email?verifytoken=${verifyEmailToken}`
         })

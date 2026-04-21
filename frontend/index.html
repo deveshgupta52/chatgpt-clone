@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/chatgpt.png           " />
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23ffffff'><path d='M19 9l1.25-2.75L23 5l-2.75-1.25L19 1l-1.25 2.75L15 5l2.75 1.25L19 9zm-7.5 .5L9 4 6.5 9.5 1 12l5.5 2.5L9 20l2.5-5.5L17 12l-5.5-2.5zM19 15l-1.25 2.75L15 19l2.75 1.25L19 23l1.25-2.75L23 19l-2.75-1.25L19 15z'/></svg>" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Chatgpt</title>
     
@@ -13,9 +13,169 @@
     
     <!-- Material Symbols Icons -->
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+
+    <style>
+        .initial-loader-wrapper {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            width: 100vw;
+            background-color: #0a0a0a;
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            user-select: none;
+        }
+
+        .boot-container {
+            width: 100%;
+            max-width: 400px;
+            padding: 24px;
+        }
+
+        .boot-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 36px;
+            opacity: 0;
+            animation: fade-in 0.5s ease-out forwards;
+        }
+
+        .boot-logo {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            background: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #000;
+        }
+
+        .boot-title {
+            color: #fff;
+            font-size: 18px;
+            font-weight: 600;
+            letter-spacing: 1px;
+        }
+
+        .boot-list {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .boot-item {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            opacity: 0;
+            transform: translateX(-15px);
+            animation: slide-in 0.4s ease-out forwards;
+        }
+
+        .boot-item:nth-child(1) { animation-delay: 0.2s; }
+        .boot-item:nth-child(2) { animation-delay: 0.6s; }
+        .boot-item:nth-child(3) { animation-delay: 1.0s; }
+        .boot-item:nth-child(4) { animation-delay: 1.4s; }
+
+        .boot-icon {
+            width: 38px;
+            height: 38px;
+            background: #171717;
+            border: 1px solid #262626;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #888;
+            transition: all 0.3s ease;
+        }
+
+        .boot-text {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .boot-label {
+            color: #e5e5e5;
+            font-size: 15px;
+            font-weight: 500;
+        }
+
+        .boot-desc {
+            color: #737373;
+            font-size: 13px;
+        }
+
+        @keyframes fade-in {
+            to { opacity: 1; }
+        }
+
+        @keyframes slide-in {
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        
+        @keyframes pulse-icon {
+            0%, 50%, 100% { color: #888; border-color: #262626; box-shadow: none; }
+            25% { color: #fff; border-color: #555; box-shadow: 0 0 12px rgba(255,255,255,0.1); }
+        }
+
+        .boot-item:nth-child(1) .boot-icon { animation: pulse-icon 2s infinite 0.2s; }
+        .boot-item:nth-child(2) .boot-icon { animation: pulse-icon 2s infinite 0.6s; }
+        .boot-item:nth-child(3) .boot-icon { animation: pulse-icon 2s infinite 1.0s; }
+        .boot-item:nth-child(4) .boot-icon { animation: pulse-icon 2s infinite 1.4s; }
+
+    </style>
   </head>
-  <body>
-    <div id="root"></div>
+  <body style="background-color: #0a0a0a; color: white; margin: 0;">
+    <div id="root">
+      <div class="initial-loader-wrapper">
+          <div class="boot-container">
+              <div class="boot-header">
+                  <div class="boot-logo">
+                      <span class="material-symbols-outlined" style="font-size: 20px;">all_inclusive</span>
+                  </div>
+                  <div class="boot-title">Initializing System</div>
+              </div>
+              <div class="boot-list">
+                  <div class="boot-item">
+                      <div class="boot-icon"><span class="material-symbols-outlined" style="font-size: 18px;">forum</span></div>
+                      <div class="boot-text">
+                          <span class="boot-label">AI Chat Engine</span>
+                          <span class="boot-desc">Ready for natural conversations</span>
+                      </div>
+                  </div>
+                  <div class="boot-item">
+                      <div class="boot-icon"><span class="material-symbols-outlined" style="font-size: 18px;">language</span></div>
+                      <div class="boot-text">
+                          <span class="boot-label">Live Web Search</span>
+                          <span class="boot-desc">Connecting to real-time internet data</span>
+                      </div>
+                  </div>
+                  <div class="boot-item">
+                      <div class="boot-icon"><span class="material-symbols-outlined" style="font-size: 18px;">travel_explore</span></div>
+                      <div class="boot-text">
+                          <span class="boot-label">Deep Search</span>
+                          <span class="boot-desc">Enabling advanced topic analysis</span>
+                      </div>
+                  </div>
+                  <div class="boot-item">
+                      <div class="boot-icon"><span class="material-symbols-outlined" style="font-size: 18px;">upload_file</span></div>
+                      <div class="boot-text">
+                          <span class="boot-label">File Contexting</span>
+                          <span class="boot-desc">Loading RAG and PDF capabilities</span>
+                      </div>
+                  </div>
+              </div>
+          </div>
+      </div>
+    </div>
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>
